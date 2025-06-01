@@ -1,7 +1,8 @@
 import 'dart:developer' as developer;
+import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-// import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/credential.dart';
 
 class StorageService {
@@ -22,7 +23,8 @@ class StorageService {
 
   static Future<void> init() async {
     developer.log('StorageService global init called', name: 'StorageService');
-    await Hive.initFlutter();
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
+    await Hive.initFlutter(appDocDir.path);
     if (!_adapterRegistered) {
       Hive.registerAdapter(CredentialAdapter());
       _adapterRegistered = true;
@@ -42,7 +44,8 @@ class StorageService {
       'StorageService initForUser called for username: $username',
       name: 'StorageService',
     );
-    await Hive.initFlutter();
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
+    await Hive.initFlutter(appDocDir.path);
     if (!_adapterRegistered) {
       Hive.registerAdapter(CredentialAdapter());
       _adapterRegistered = true;
