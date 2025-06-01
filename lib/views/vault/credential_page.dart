@@ -1,4 +1,7 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
+import '../../services/storage_service.dart';
+import '../../models/credential.dart';
 
 class CredentialPage extends StatefulWidget {
   final Map<String, String>? existingCredential; // null = add mode
@@ -40,16 +43,57 @@ class _CredentialPageState extends State<CredentialPage> {
     _passwordController.text = generated;
   }
 
-  void _saveCredential() {
-    final newCredential = {
-      'title': _titleController.text,
-      'username': _usernameController.text,
-      'password': _passwordController.text,
-      'note': _noteController.text,
-    };
-
-    // TODO: Save or update in secure storage
-    Navigator.pop(context, newCredential); // Return to previous screen
+  void _saveCredential() async {
+    developer.log('Save credential pressed', name: 'CredentialPage');
+    final newCredential = Credential(
+      title: _titleController.text,
+      username: _usernameController.text,
+      password: _passwordController.text,
+      note: _noteController.text.isEmpty ? null : _noteController.text,
+    );
+    if (widget.existingCredential != null) {
+      // Update existing
+      final box = StorageService.credentialBox;
+      final index = box.values.toList().indexWhere(
+        (c) =>
+            c.title == widget.existingCredential!['title'] &&
+            c.username == widget.existingCredential!['username'] &&
+            c.password == widget.existingCredential!['password'] &&
+            (c.note ?? '') == (widget.existingCredential!['note'] ?? ''),
+      );
+      if (index != -1) {
+        final existing = box.getAt(index);
+        if (existing != null) {
+          developer.log(
+            'Updating existing credential: ${existing.title}',
+            name: 'CredentialPage',
+          );
+          existing.title = newCredential.title;
+          existing.username = newCredential.username;
+          existing.password = newCredential.password;
+          existing.note = newCredential.note;
+          await existing.save();
+        }
+      }
+    } else {
+      developer.log(
+        'Adding new credential: ${newCredential.title}',
+        name: 'CredentialPage',
+      );
+      await StorageService.credentialBox.add(newCredential);
+    }
+    if (mounted) {
+      developer.log(
+        'Credential save complete, popping page',
+        name: 'CredentialPage',
+      );
+      Navigator.pop(context, {
+        'title': newCredential.title,
+        'username': newCredential.username,
+        'password': newCredential.password,
+        'note': newCredential.note ?? '',
+      });
+    }
   }
 
   @override
