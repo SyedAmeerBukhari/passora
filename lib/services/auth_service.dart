@@ -79,4 +79,15 @@ class AuthService {
     await _secureStorage.delete(key: _usernameKey);
     developer.log('Logout complete', name: 'AuthService');
   }
+
+  /// Get the currently logged-in username
+  static Future<String?> getCurrentUsername() async {
+    return await _secureStorage.read(key: _usernameKey);
+  }
+
+  /// Get the password for a given username (for internal use)
+  static Future<String?> getPasswordForUsername(String username) async {
+    final key = 'user_\u001f\u001f${username}_password';
+    return await _secureStorage.read(key: key);
+  }
 }
