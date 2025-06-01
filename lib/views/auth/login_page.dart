@@ -74,81 +74,137 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: Center(
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (_error != null)
-                Text(_error!, style: const TextStyle(color: Colors.red)),
-              TextFormField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator:
-                    (value) =>
-                        value == null || value.trim().isEmpty
-                            ? 'Enter username'
-                            : null,
+              const SizedBox(height: 32),
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.teal[100],
+                child: const Icon(Icons.lock, size: 48, color: Colors.teal),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+              Text(
+                'Passora',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Colors.teal[800],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Card(
+                elevation: 6,
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              _error!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        TextFormField(
+                          controller: _usernameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Username',
+                            prefixIcon: Icon(Icons.person),
+                            border: OutlineInputBorder(),
+                          ),
+                          validator:
+                              (value) =>
+                                  value == null || value.trim().isEmpty
+                                      ? 'Enter username'
+                                      : null,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            prefixIcon: const Icon(Icons.lock),
+                            border: const OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                          ),
+                          obscureText: _obscurePassword,
+                          validator:
+                              (value) =>
+                                  value == null || value.isEmpty
+                                      ? 'Enter password'
+                                      : null,
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.login),
+                            label:
+                                _isLoading
+                                    ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                    : const Text('Login'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              backgroundColor: Colors.teal,
+                            ),
+                            onPressed:
+                                _isLoading
+                                    ? null
+                                    : () {
+                                      if (_formKey.currentState!.validate()) {
+                                        _handleLogin();
+                                      }
+                                    },
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : () {
+                                    context.go('/signup');
+                                  },
+                          child: const Text('Don’t have an account? Sign up'),
+                        ),
+                      ],
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
                   ),
                 ),
-                obscureText: _obscurePassword,
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Enter password'
-                            : null,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed:
-                    _isLoading
-                        ? null
-                        : () {
-                          developer.log(
-                            'Login button pressed',
-                            name: 'LoginPage',
-                          );
-                          if (_formKey.currentState!.validate()) {
-                            _handleLogin();
-                          }
-                        },
-                child:
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text('Login'),
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () {
-                  developer.log('Navigating to signup page', name: 'LoginPage');
-                  context.go('/signup');
-                },
-                child: const Text('Don’t have an account? Sign up'),
-              ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
