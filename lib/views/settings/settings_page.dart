@@ -319,10 +319,12 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
                 ),
               ),
               validator: (value) {
-                if (value == null || value.isEmpty)
+                if (value == null || value.isEmpty) {
                   return 'Confirm new password';
-                if (value != _newPasswordController.text)
+                }
+                if (value != _newPasswordController.text) {
                   return 'Passwords do not match';
+                }
                 return null;
               },
             ),

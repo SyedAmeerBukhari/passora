@@ -61,27 +61,24 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 32),
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.teal[100],
-                child: const Icon(
-                  Icons.lock_outline,
-                  size: 48,
-                  color: Colors.teal,
-                ),
+              Image.asset(
+                Theme.of(context).brightness == Brightness.dark
+                    ? 'assets/logo-dark.png'
+                    : 'assets/logo-light.png',
+                width: 150,
+                height: 150,
               ),
               const SizedBox(height: 16),
               Text(
                 'Create Account',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.teal[800],
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -169,10 +166,12 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'Confirm your password';
-                            if (value != _passwordController.text)
+                            }
+                            if (value != _passwordController.text) {
                               return 'Passwords do not match';
+                            }
                             return null;
                           },
                         ),

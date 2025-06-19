@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:passora/views/vault/credential_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 import '../../models/credential.dart';
@@ -18,6 +19,7 @@ class HomePage extends StatelessWidget {
       builder: (context, snapshot) {
         final username = snapshot.data ?? '';
         return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
             title: Text('Vault${username.isNotEmpty ? ' - $username' : ''}'),
             actions: [
@@ -113,18 +115,85 @@ class HomePage extends StatelessWidget {
               );
             },
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              developer.log('Add credential button pressed', name: 'HomePage');
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CredentialPage()),
-              );
-            },
-            child: const Icon(Icons.add),
+          floatingActionButton: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              FloatingActionButton.extended(
+                heroTag: 'generatePassword',
+                icon: const Icon(Icons.password),
+                label: const Text('Generate Password'),
+                onPressed: () async {
+                  final password = _generateRandomPassword();
+                  showDialog(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: const Text('Generated Password'),
+                          content: SelectableText(
+                            password,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          actions: [
+                            TextButton.icon(
+                              icon: const Icon(Icons.copy),
+                              label: const Text('Copy'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Password copied to clipboard!',
+                                    ),
+                                  ),
+                                );
+                                // Copy to clipboard
+                                // ignore: deprecated_member_use
+                                Clipboard.setData(
+                                  ClipboardData(text: password),
+                                );
+                              },
+                            ),
+                            TextButton(
+                              child: const Text('Close'),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                  );
+                },
+                backgroundColor: Colors.teal,
+              ),
+              const SizedBox(height: 12),
+              FloatingActionButton(
+                heroTag: 'addCredential',
+                onPressed: () async {
+                  developer.log(
+                    'Add credential button pressed',
+                    name: 'HomePage',
+                  );
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CredentialPage()),
+                  );
+                },
+                child: const Icon(Icons.add),
+              ),
+            ],
           ),
         );
       },
     );
+  }
+
+  String _generateRandomPassword({int length = 16}) {
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#%^&*()-_=+[]{}|;:,.<>?';
+    final rand = DateTime.now().millisecondsSinceEpoch;
+    final buffer = StringBuffer();
+    for (int i = 0; i < length; i++) {
+      buffer.write(chars[(rand + i * 31) % chars.length]);
+    }
+    return buffer.toString();
   }
 }

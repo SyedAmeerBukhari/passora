@@ -37,12 +37,6 @@ class _CredentialPageState extends State<CredentialPage> {
     });
   }
 
-  void _generateRandomPassword() {
-    // For now, use a placeholder. We'll generate a real one later.
-    const generated = 'P@ssw0rd123!';
-    _passwordController.text = generated;
-  }
-
   void _saveCredential() async {
     developer.log('Save credential pressed', name: 'CredentialPage');
     final newCredential = Credential(
@@ -140,10 +134,6 @@ class _CredentialPageState extends State<CredentialPage> {
                             : Icons.visibility_off,
                       ),
                       onPressed: _togglePasswordVisibility,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: _generateRandomPassword,
                     ),
                   ],
                 ),
